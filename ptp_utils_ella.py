@@ -66,12 +66,12 @@ def update_alpha_time_word(alpha, bounds: Union[float, Tuple[float, float]], pro
 
 def get_time_words_attention_alpha(prompts, num_steps,
                                    cross_replace_steps: Union[float, Dict[str, Tuple[float, float]]],
-                                   tokenizer, max_num_words=77):
+                                   tokenizer, max_num_words=64):
     if type(cross_replace_steps) is not dict:
         cross_replace_steps = {"default_": cross_replace_steps}
     if "default_" not in cross_replace_steps:
         cross_replace_steps["default_"] = (0., 1.)
-    alpha_time_words = torch.zeros(num_steps + 1, len(prompts) - 1, max_num_words)
+    alpha_time_words = torch.zeros(num_steps + 1, len(prompts) - 1, max_num_words, dtype=torch.float16)
     for i in range(len(prompts) - 1):
         alpha_time_words = update_alpha_time_word(alpha_time_words, cross_replace_steps["default_"],
                                                   i)
@@ -178,7 +178,7 @@ def text2image_ldm_stable(
     context = [negative_prompt_embeds, prompt_embeds]
     if not low_resource:
         context = torch.cat(context)
-    print(f"context {context.shape}")
+    #print(f"context {context.shape}")
 
     latent, latents = init_latent(latent, model, height, width, generator, batch_size, device, date_type)
     print(f"initialized latent {latent.shape}")
